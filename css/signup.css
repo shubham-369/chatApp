@@ -4,11 +4,19 @@ body {
 
 .form{
     background-color: white;
-    padding: 3rem 6rem;
+    padding: 2rem 3rem;
     margin: 3rem auto;
     border-radius: 5px;
 }
 .form h2{
     text-align: center;
     margin: 0 1rem 2rem 1rem;
+}
+#login{
+    text-align: center;
+    padding: 1rem 0;
+    margin: 0;
+}
+a:hover{
+    text-decoration: none;
 }
