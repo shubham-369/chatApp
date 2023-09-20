@@ -1,0 +1,4 @@
+node_modules
+rough.txt
+package-lock.json
+.env
