@@ -11,11 +11,11 @@ form.addEventListener('submit', async(e) => {
     });
     try{
         const response = await axios.post('http://localhost:3000/user/signup', jsonData);
-        console.log(response.data.message);
+        alert(response.data.message);
 
         form.reset();
     }
     catch(error){
-        console.log('User Signup failed', error);
+        (error.response.status === 400)? alert(error.response.data.message): console.log('User Signup failed', error);        
     }
 });
