@@ -13,6 +13,7 @@ form.addEventListener('submit', async(e) => {
     });
     try{
         const response = await axios.post('http://localhost:3000/user/login', jsonData);
+        console.log(response);
         alert(response.data.message);
         form.reset();
     }
