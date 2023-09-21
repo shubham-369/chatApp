@@ -12,6 +12,7 @@ form.addEventListener('submit', async(e) => {
     try{
         const response = await axios.post('http://localhost:3000/user/signup', jsonData);
         alert(response.data.message);
+        window.location.href = "file:///C:/Users/shubh/OneDrive/Desktop/back-end/chatApp/frontend/login.html";
 
         form.reset();
     }
