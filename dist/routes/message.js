@@ -31,4 +31,5 @@ const router = (0, express_1.Router)();
 const messageController = __importStar(require("../controllers/message"));
 const authenticate_1 = __importDefault(require("../middleware/authenticate"));
 router.post('/message', authenticate_1.default, messageController.message);
+router.get('/getMessages', authenticate_1.default, messageController.getMessages);
 exports.default = router;

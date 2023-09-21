@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.message = void 0;
+exports.getMessages = exports.message = void 0;
 const message = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { message } = req.body;
     try {
@@ -22,3 +22,14 @@ const message = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.message = message;
+const getMessages = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const messages = yield req.user.getMessages();
+        res.status(201).json(messages);
+    }
+    catch (error) {
+        console.log('Error while getting messages: ', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+exports.getMessages = getMessages;
