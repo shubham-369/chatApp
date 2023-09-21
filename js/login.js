@@ -13,8 +13,9 @@ form.addEventListener('submit', async(e) => {
     });
     try{
         const response = await axios.post('http://localhost:3000/user/login', jsonData);
-        console.log(response);
+        localStorage.setItem('token', `${response.data.token}`);
         alert(response.data.message);
+        window.location.href= 'file:///C:/Users/shubh/OneDrive/Desktop/back-end/chatApp/frontend/index.html';
         form.reset();
     }
     catch(error){
