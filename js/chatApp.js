@@ -4,6 +4,7 @@ const form = document.getElementsByTagName('form')[0];
 const chats = document.getElementById('chats');
 
 function addMessage(data){
+    chats.innerHTML= '';
     data.forEach(messages => {
         const li = document.createElement('li');
         li.classList.add('chat');
@@ -24,9 +25,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
             }catch(error){
                 console.log('Error while getting messages!', error);
             }
-        }
+        };
 
-        getMessages();
+        
+        // setInterval(()=> {
+        //     getMessages();
+        // }, 1000);
+
 
         form.addEventListener('submit', async(e)=> {
             e.preventDefault();
@@ -49,6 +54,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
         }
     }
 });
+
 
 logout.addEventListener('click', (e)=> {
     e.preventDefault();
