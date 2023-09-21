@@ -8,6 +8,9 @@ const database_1 = __importDefault(require("./util/database"));
 const dotenv_1 = require("dotenv");
 const cors_1 = __importDefault(require("cors"));
 const user_1 = __importDefault(require("./routes/user"));
+const message_1 = __importDefault(require("./routes/message"));
+const user_2 = require("./models/user");
+const message_2 = require("./models/message");
 (0, dotenv_1.config)();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -16,6 +19,9 @@ app.use((0, cors_1.default)({
     credentials: true,
 }));
 app.use('/user', user_1.default);
+app.use('/user', message_1.default);
+user_2.User.hasMany(message_2.Message, { onDelete: 'CASCADE' });
+message_2.Message.belongsTo(user_2.User);
 const port = process.env.PORT || 3000;
 database_1.default
     .sync()
