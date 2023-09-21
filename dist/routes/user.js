@@ -27,4 +27,5 @@ const express_1 = require("express");
 const router = (0, express_1.Router)();
 const userControllers = __importStar(require("../controllers/user"));
 router.post('/signup', userControllers.signup);
+router.post('/login', userControllers.login);
 exports.default = router;
