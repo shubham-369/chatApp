@@ -10,6 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMessages = exports.message = void 0;
+const message_1 = require("../models/message");
+const user_1 = require("../models/user");
+const sequelize_1 = require("sequelize");
 const message = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { message } = req.body;
     try {
@@ -23,8 +26,24 @@ const message = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.message = message;
 const getMessages = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { latestMessageID } = req.query;
+    let whereClause = {};
     try {
-        const messages = yield req.user.getMessages();
+        if (latestMessageID !== undefined) {
+            whereClause = {
+                id: {
+                    [sequelize_1.Op.gt]: latestMessageID,
+                }
+            };
+        }
+        ;
+        const messages = yield message_1.Message.findAll({
+            where: whereClause,
+            include: {
+                model: user_1.User,
+                attributes: ['name'],
+            }
+        });
         res.status(201).json(messages);
     }
     catch (error) {
