@@ -9,7 +9,7 @@ function generateToken(user) {
     return jsonwebtoken_1.default.sign({
         userID: user.id,
         email: user.email
-    }, secretKey, { expiresIn: '1h' });
+    }, secretKey, { expiresIn: '3h' });
 }
 ;
 exports.default = generateToken;

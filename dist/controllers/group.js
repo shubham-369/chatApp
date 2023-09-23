@@ -10,11 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getGroups = exports.createGroup = void 0;
+const admin_1 = require("../models/admin");
 const createGroup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { group } = req.body;
     try {
+        const admin = yield admin_1.Admin.create({ UserId: req.user.id });
         yield req.user.createGroup({
             name: group,
+            adminId: admin.id
         });
         res.sendStatus(200);
     }
