@@ -2,8 +2,7 @@ const logout = document.getElementById('logout');
 const token = localStorage.getItem('token');
 const form = document.getElementsByTagName('form')[0];
 const chats = document.getElementById('chats');
-const localMessages = localStorage.getItem('chats') || [];
-let latestMessageID = localStorage.getItem('latestID') || undefined;
+const groupMessages = JSON.parse(localStorage.getItem('groupMessages')) || {};
 const addUser = document.getElementById('add-user');
 const showUser = document.getElementById('show-user');
 const icon = document.getElementsByClassName('icon-container')[0];
@@ -11,9 +10,11 @@ const menu = document.getElementById('menu');
 const searchContainer = document.getElementsByClassName('search-container')[0];
 const searchResult = document.getElementById('search-results');
 
+// Function to display messages for a specific group
 function addMessage(data){
-    // data = JSON.parse(data);
-    // console.log(data);
+    if(!data){
+        return;
+    }
     chats.innerHTML= '';
     data.forEach(messages => {
         const li = document.createElement('li');
@@ -22,6 +23,8 @@ function addMessage(data){
         chats.appendChild(li);
     });
 };
+
+
 function admin(isAdmin) {
     if(!isAdmin){
         return;
@@ -88,24 +91,36 @@ function admin(isAdmin) {
         searchContainer.lastElementChild.addEventListener('click', searchUsers);
     });
 }
-
 //function to update latest message id in localStorage
-function updatedLatestMessageID(messages){
-    latestMessageID = messages[messages.length - 1];
-    latestMessageID = latestMessageID.id;
-    localStorage.setItem('latestID', latestMessageID);
+function updatedLatestMessageID(groupId, messages){
+    if (messages.length > 0) {
+        const latestMessageID = messages[messages.length - 1].id;
+        localStorage.setItem(`latestID_${groupId}`, latestMessageID);
+    }
 };
 
 //function to store 10 recent messages in localStorage
-function updateLocalMessage(messages){
-    const updatedMessages = [...localMessages, ...messages];
+function updateGroupMessages(groupId, messages, latestMessageID) {
+    if (!groupMessages[groupId]) {
+        groupMessages[groupId] = [];
+    }
+    // Check if the new message ID is the same as the latest message ID
+    if (parseInt(latestMessageID) === groupMessages[groupId][groupMessages[groupId].length - 1]?.id) {
+        console.log('working');
+        return; // No need to update if it's the same message
+    }
 
-    if(updatedMessages.length >= 12 ){
-        updatedMessages.splice(0, updatedMessages.length - 12);
-    };
 
-    localStorage.setItem('chats', JSON.stringify(updatedMessages));
-};
+    // Add the new messages to the group's message array
+    groupMessages[groupId] = [...groupMessages[groupId], ...messages];
+
+    // Limit the number of messages to 10
+    if (groupMessages[groupId].length > 10) {
+        groupMessages[groupId].splice(0, groupMessages[groupId].length - 10);
+    }
+    // Store the updated messages in local storage
+    localStorage.setItem('groupMessages', JSON.stringify(groupMessages));
+}
 
 const queryParams = new URLSearchParams(window.location.search);
 const groupID = queryParams.get('groupID');
@@ -115,9 +130,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if(token){
 
         if(groupID){
-            // addMessage(localMessages);
+            addMessage(groupMessages[groupID]);
+            let latestMessageID = localStorage.getItem(`latestID_${groupID}`) || undefined;
 
-            //Even listener on show user to display all the group user
+            //Even listener to display all the group user
             showUser.addEventListener('click', async ()=> {
                 if(searchResult.innerHTML===''){
                     try {
@@ -155,78 +171,73 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
             //Event listener on searched results to add user, remove user, make user admin and remove admin
             searchResult.addEventListener('click', async (e) => {
-                const target = e.target;
-                const id = target.parentElement.parentElement.getAttribute('data-id');
-            
-                async function handleMakeAdmin(id, target) {
+                if(e.target.classList.contains('remove')){
+                    const id = e.target.parentElement.parentElement.getAttribute('data-id');
+                    try {
+                        await axios.delete(`http://localhost:3000/user/removeUser?groupID=${groupID}&deleteID=${id}`, { headers: { "Authorization": token } });
+                        e.target.parentElement.parentElement.remove();
+                    } catch (error) {
+                        if(error.response && error.response.status === 404){
+                            e.target.parentElement.parentElement.innerHTML=`<li>${error.response.data.message}</li>`
+                        }else{
+                            console.log('Error while removing user from group', error);
+                        }
+                    }
+
+                }else if(e.target.classList.contains('make-admin')){
+                    const id = e.target.parentElement.parentElement.getAttribute('data-id');
                     try {
                         await axios.get(`http://localhost:3000/user/makeAdmin?groupID=${groupID}&userID=${id}`, { headers: { "Authorization": token } });
-                
-                        target.classList.replace('make-admin', 'remove-admin');
-                        target.textContent = 'Drop Admin';
-                    } catch (error) {
-                        handleErrorResponse(target, error);
-                    }
-                }
-                
-                async function handleRemoveAdmin(id, target) {
-                    try {
-                        const response = await axios.delete(`http://localhost:3000/user/removeAdmin?groupID=${groupID}&userID=${id}`, { headers: { "Authorization": token } });
-                        console.log(response.data.message);
-                
-                        target.classList.replace('remove-admin', 'make-admin');
-                        target.textContent = 'Make Admin';
-                    } catch (error) {
-                        handleErrorResponse(target, error);
-                    }
-                }
-                
-                async function handleAddUserToGroup(id) {
-                    const parentElement = e.target.parentElement;
-                
-                    try {
-                        const response = await axios.post('http://localhost:3000/user/addGroupUser', { userID: id, groupID: groupID }, { headers: { "Authorization": token } });
-                
-                        parentElement.innerHTML = `<li>${response.data.message}</li>`;
-                    } catch (error) {
-                        handleErrorResponse(parentElement, error);
-                    }
-                }
-                
-                function handleErrorResponse(element, error) {
-                    if (error.response && error.response.status === 404) {
-                        element.innerHTML = `<li>${error.response.data.message}</li>`;
-                    } else {
-                        console.log('Error:', error);
-                    }
-                }
-
-                try {
-                    if (target.classList.contains('remove')) {
                         
-                        await axios.delete(`http://localhost:3000/user/removeUser?groupID=${groupID}&deleteID=${id}`, { headers: { "Authorization": token } });
-                        target.parentElement.parentElement.remove();
-
-                    } else if (target.classList.contains('make-admin')) {
-                        await handleMakeAdmin(id, target);
-                    } else if (target.classList.contains('remove-admin')) {
-                        await handleRemoveAdmin(id, target);
-                    } else {
-                        await handleAddUserToGroup(id);
+                        e.target.classList.replace('make-admin', 'remove-admin');
+                        e.target.textContent='Drop Admin';
+                    } catch (error) {
+                        if(error.response && error.response.status === 404){
+                            e.target.parentElement.parentElement.innerHTML=`<li>${error.response.data.message}</li>`;
+                        }else{
+                            console.log('Error while making user admin', error);
+                        }
                     }
-                } catch (error) {
-                    handleErrorResponse(target, error);
+
+                }else if(e.target.classList.contains('remove-admin')){
+                    const id = e.target.parentElement.parentElement.getAttribute('data-id');
+                    try {
+                        await axios.delete(`http://localhost:3000/user/removeAdmin?groupID=${groupID}&userID=${id}`, { headers: { "Authorization": token } });
+                       
+                        e.target.classList.replace('remove-admin', 'make-admin');
+                        e.target.textContent='Make Admin';
+
+                    } catch (error) {
+                        if(error.response && error.response.status === 404){
+                            e.target.parentElement.parentElement.innerHTML=`<li>${error.response.data.message}</li>`;
+                        }else{
+                            console.log('Error while removing admin', error);
+                        }
+                    }
+                }else{
+                    const id = e.target.parentElement.getAttribute('data-id');
+                    try {
+                        const response = await axios.post('http://localhost:3000/user/addGroupUser', { userID: id , groupID: groupID}, { headers: { "Authorization": token } });
+                        
+                        e.target.parentElement.innerHTML=`<li>${response.data.message}</li>`
+                    } catch (error) {
+                        if(error.response && error.response.status === 404){
+                            e.target.parentElement.innerHTML=`<li>${error.response.data.message}</li>`
+                        }else{
+                            console.log('Error while adding user to group!', error);
+                        }
+                    }
                 }
             });
-                        
+            
 
             async function getMessages(){
                 try{
                     const response = await axios.get(`http://localhost:3000/user/getMessages?groupID=${groupID}&messageID=${latestMessageID}`, {headers: {"Authorization": token}});
-                    addMessage(response.data.data);
                     admin(response.data.isAdmin);
-                    // updateLocalMessage(response.data);
-                    // updatedLatestMessageID(response.data);
+                    updatedLatestMessageID(groupID, response.data.data);
+                    updateGroupMessages(groupID, response.data.data, latestMessageID);
+                            
     
                 }catch(error){
                     if(error.response && error.response.status === 404){
@@ -251,10 +262,8 @@ document.addEventListener('DOMContentLoaded', ()=> {
                 try {
                   const response = await axios.post('http://localhost:3000/user/message', jsonData, {
                     headers: { "Authorization": token }
-                  });
-                  console.log(response.data.message);              
+                  });         
                   
-              
                   await getMessages();
               
                   form.reset();
