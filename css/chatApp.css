@@ -38,9 +38,15 @@ body {
     width: 100%;
     font-weight: lighter;
     background-color: #075e54;
-    text-align: center;
     color: white;
+    padding: 1rem;
+   display: flex;
+   flex-wrap: wrap;
 }
+.chat-nav h1, .icon-container {
+   width: 50%; 
+}
+
 .chat-nav h1{
     font-weight: 400;
 }
@@ -50,4 +56,84 @@ form{
     padding: 0.5rem 1rem;
     gap: 1rem;
     background: #075e54;
+}
+.icon-container {
+    font-size: 2rem;
+   text-align: end;
+     color: #fff;
+    cursor: pointer;
+ }
+ 
+.none{
+    display: none;
+}
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+#search-box {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+#search-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff; 
+    color: #fff; 
+    border: none;
+    cursor: pointer;
+}
+
+#search-results {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    border-top: none;
+}
+
+#search-results li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0.5rem;
+     border-top: 1px solid #ccc;
+ }
+ 
+#search-results li:first-child {
+    border-top: none;
+}
+
+#search-results li:hover {
+    background-color: #f0f0f0;
+}
+#menu ul{
+   list-style: none;
+   margin: 0;
+   height: 0;
+   opacity: 0;
+   transition: height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+
+#menu {
+   width: 100%;
+}
+#menu ul li{
+   padding: 1% 0;
+   cursor: pointer;
+}
+#menu ul li:hover{
+   color: lightgreen;
 }
