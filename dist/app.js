@@ -16,6 +16,7 @@ const message_2 = require("./models/message");
 const group_2 = require("./models/group");
 const junction_1 = require("./models/junction");
 const admin_1 = require("./models/admin");
+const groupadmins_1 = require("./models/groupadmins");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
@@ -27,14 +28,14 @@ app.use('/user', group_1.default);
 app.use('/user', message_1.default);
 group_2.Group.hasMany(message_2.Message);
 message_2.Message.belongsTo(group_2.Group);
-admin_1.Admin.hasOne(group_2.Group);
-group_2.Group.belongsTo(admin_1.Admin);
-user_2.User.hasMany(message_2.Message, { constraints: true, onDelete: 'CASCADE' });
+user_2.User.hasMany(message_2.Message);
 message_2.Message.belongsTo(user_2.User);
-user_2.User.belongsToMany(group_2.Group, { through: junction_1.Junction });
-group_2.Group.belongsToMany(user_2.User, { through: junction_1.Junction });
 user_2.User.hasMany(admin_1.Admin);
 admin_1.Admin.belongsTo(user_2.User);
+user_2.User.belongsToMany(group_2.Group, { through: junction_1.Junction });
+group_2.Group.belongsToMany(user_2.User, { through: junction_1.Junction });
+admin_1.Admin.belongsToMany(group_2.Group, { through: groupadmins_1.GroupAdmins, constraints: true, onDelete: 'CASCADE' });
+group_2.Group.belongsToMany(admin_1.Admin, { through: groupadmins_1.GroupAdmins });
 const port = process.env.PORT || 3000;
 database_1.default
     .sync()

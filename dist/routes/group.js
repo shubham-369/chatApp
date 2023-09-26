@@ -32,4 +32,8 @@ const groupController = __importStar(require("../controllers/group"));
 const authenticate_1 = __importDefault(require("../middleware/authenticate"));
 router.post('/addGroup', authenticate_1.default, groupController.createGroup);
 router.get('/getGroup', authenticate_1.default, groupController.getGroups);
+router.post('/addGroupUser', authenticate_1.default, groupController.addGroupUser);
+router.delete('/removeUser', authenticate_1.default, groupController.removeUser);
+router.delete('/removeAdmin', authenticate_1.default, groupController.removeAdmin);
+router.get('/makeAdmin', authenticate_1.default, groupController.makeAdmin);
 exports.default = router;

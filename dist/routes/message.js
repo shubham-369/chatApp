@@ -32,4 +32,6 @@ const messageController = __importStar(require("../controllers/message"));
 const authenticate_1 = __importDefault(require("../middleware/authenticate"));
 router.post('/message', authenticate_1.default, messageController.addMessage);
 router.get('/getMessages', authenticate_1.default, messageController.getMessages);
+router.get('/searchUser', authenticate_1.default, messageController.getByEmail);
+router.get('/showGroupUsers', authenticate_1.default, messageController.showGroupUsers);
 exports.default = router;

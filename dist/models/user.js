@@ -26,7 +26,8 @@ const User = database_1.default.define('Users', {
     },
     number: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true,
     },
     password: {
         type: sequelize_1.DataTypes.STRING,
