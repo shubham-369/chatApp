@@ -1,0 +1,24 @@
+body {
+    background-image: url('https://w0.peakpx.com/wallpaper/818/148/HD-wallpaper-whatsapp-background-cool-dark-green-new-theme-whatsapp.jpg');
+}
+
+.form{
+    background-color: white;
+    padding: 2rem 3rem;
+    margin: 3rem auto;
+    border-radius: 5px;
+}
+.form h2{
+    text-align: center;
+    margin: 0 1rem 2rem 1rem;
+}
+#login{
+    display: flex;
+    flex-direction:column;
+    gap: 6px;
+    align-items: center;
+    margin-top: 1rem;    
+}
+a:hover{
+    text-decoration: none;
+}

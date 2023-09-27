@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
 const express_1 = __importDefault(require("express"));
+const app = (0, express_1.default)();
 const database_1 = __importDefault(require("./util/database"));
 const cors_1 = __importDefault(require("cors"));
 const user_1 = __importDefault(require("./routes/user"));
@@ -17,12 +18,12 @@ const group_2 = require("./models/group");
 const junction_1 = require("./models/junction");
 const admin_1 = require("./models/admin");
 const groupadmins_1 = require("./models/groupadmins");
-const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
     origin: '*',
     credentials: true,
 }));
+app.use(express_1.default.static('public'));
 app.use('/user', user_1.default);
 app.use('/user', group_1.default);
 app.use('/user', message_1.default);

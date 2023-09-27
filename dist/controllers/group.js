@@ -93,13 +93,12 @@ exports.removeUser = removeUser;
 const removeAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { groupID, userID } = req.query;
     try {
-        const group = yield group_1.Group.findByPk(groupID);
-        if (!group) {
-            return res.status(404).json({ message: 'Your group does not exist anymore' });
-        }
-        const admin = yield admin_1.Admin.findOne({ where: { UserId: userID } });
-        if (!admin) {
-            return res.status(404).json({ message: 'Already demoted to user' });
+        const [group, admin] = yield Promise.all([
+            group_1.Group.findByPk(groupID),
+            admin_1.Admin.findOne({ where: { UserId: userID } }),
+        ]);
+        if (!group || !admin) {
+            return res.status(404).json({ message: group ? 'Already demoted to user' : 'Your group does not exist anymore' });
         }
         yield admin.destroy();
         const remainingAdmins = yield group.getAdmins();

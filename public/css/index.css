@@ -1,0 +1,72 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    background-image: url('https://w0.peakpx.com/wallpaper/818/148/HD-wallpaper-whatsapp-background-cool-dark-green-new-theme-whatsapp.jpg');
+    height: 100vh;
+}
+.navbar{
+    background-color: black;
+}
+
+.group-box{
+    display: flex;
+    justify-content: center;
+    height: 100%;
+}
+.col{
+    background-color: white;
+    padding: 0;
+}
+#groups{
+    height: 100vh;
+    padding: 0 0.5rem;
+    overflow-y: auto;
+}
+.group{
+   background: whitesmoke;
+   margin: 0;
+   padding: 1rem;
+   font-weight: 600;
+   border-bottom: 1px solid gray;
+   list-style: none;
+}
+.group:hover{
+   background: darkseagreen;
+   border-bottom-color: green;
+}
+.group-nav{
+   text-align: center;
+   padding: 1rem;
+    font-weight: lighter;
+    background-color: #075e54;
+    color: white;
+}
+.group-nav h1{
+    font-weight: 400;
+}
+form{
+    display: flex;
+    justify-content: space-around;
+    padding: 0.5rem 1rem;
+    gap: 1rem;
+    background: #075e54;
+}
+.icon-container {
+    width: 50px;
+    height: 50px;
+   background: #099a09;
+   border-radius: 3px;
+   padding: 0 0.3rem;
+    color: #fff; 
+    font-size: 24px;
+   cursor: pointer;
+  }
+.icon-container:hover{
+   background: green;
+}
+.none{
+    display: none;
+}
