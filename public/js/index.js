@@ -1,11 +1,13 @@
 "use strict";
 
+import jwt from 'jsonwebtoken';
 const logout = document.getElementById('logout');
 const createGroup = document.getElementById('createGroup');
 const form = document.getElementsByClassName('groupForm')[0];
 const groups = document.getElementById('groups');
 const token = localStorage.getItem('token');
 const group = document.getElementsByClassName('group');
+let userID = 0;
 
 createGroup.addEventListener('click', (e)=> {
     e.preventDefault();
@@ -13,17 +15,43 @@ createGroup.addEventListener('click', (e)=> {
     form.classList.toggle('none');
 });
 
-function addGroups(group){
+function addGroups(groupArray){
     groups.innerHTML= '';
-    group.forEach(element => {
+    groupArray.forEach(element => {
         const li = document.createElement('li');
         li.setAttribute('data-id', `${element.id}`);
         li.classList.add('group');
         li.innerHTML= `${element.name}`;
         groups.appendChild(li);
     });
+};
+
+function addRealTimeGroups(group){
+    const li = document.createElement('li');
+    li.setAttribute('data-id', `${group.id}`);
+    li.classList.add('group');
+    li.innerHTML= `${group.name}`;
+    groups.appendChild(li);
 }
+
+
 document.addEventListener('DOMContentLoaded', async ()=> {
+
+    if(!token){
+        if(window.confirm('You are not logged in')){
+            window.location.href= '/login.html';
+        }
+    };
+
+    var decoded = jwt.decode(token);
+    console.log(decoded);
+
+    const socket = io();
+    socket.on('Groups', (Group) => {
+        if(Group.userID === userID){
+            addRealTimeGroups(Group.group);
+        }
+    });
     //get all the user groups
     async function getGroups(){
         try {
@@ -47,12 +75,9 @@ document.addEventListener('DOMContentLoaded', async ()=> {
 
         const groupName = form.firstElementChild.value;
         try {
-            const response = await axios.post(`/user/addGroup`, {group: groupName}, {headers: {"Authorization": token}});
-            console.log(response.data);
+            await axios.post(`/user/addGroup`, {group: groupName}, {headers: {"Authorization": token}});
+            
             form.reset();
-            if(response.status === 200){
-                await getGroups();
-            }
         } catch (error) {
             console.log('Error while creating group!', error);
         }

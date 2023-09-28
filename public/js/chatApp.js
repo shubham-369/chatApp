@@ -2,7 +2,6 @@ const logout = document.getElementById('logout');
 const token = localStorage.getItem('token');
 const form = document.getElementsByTagName('form')[0];
 const chats = document.getElementById('chats');
-const groupMessages = JSON.parse(localStorage.getItem('groupMessages')) || {};
 const addUser = document.getElementById('add-user');
 const showUser = document.getElementById('show-user');
 const icon = document.getElementsByClassName('icon-container')[0];
@@ -23,7 +22,12 @@ function addMessage(data){
         chats.appendChild(li);
     });
 };
-
+function addRealTimeMessages(message){
+    const li = document.createElement('li');
+    li.classList.add('chat');
+    li.innerHTML= `${message.name} : ${message.message}`;
+    chats.appendChild(li);
+};
 
 function admin(isAdmin) {
     if(!isAdmin){
@@ -91,36 +95,6 @@ function admin(isAdmin) {
         searchContainer.lastElementChild.addEventListener('click', searchUsers);
     });
 }
-//function to update latest message id in localStorage
-function updatedLatestMessageID(groupId, messages){
-    if (messages.length > 0) {
-        const latestMessageID = messages[messages.length - 1].id;
-        localStorage.setItem(`latestID_${groupId}`, latestMessageID);
-    }
-};
-
-//function to store 10 recent messages in localStorage
-function updateGroupMessages(groupId, messages, latestMessageID) {
-    if (!groupMessages[groupId]) {
-        groupMessages[groupId] = [];
-    }
-    // Check if the new message ID is the same as the latest message ID
-    if (parseInt(latestMessageID) === groupMessages[groupId][groupMessages[groupId].length - 1]?.id) {
-        console.log('working');
-        return; // No need to update if it's the same message
-    }
-
-
-    // Add the new messages to the group's message array
-    groupMessages[groupId] = [...groupMessages[groupId], ...messages];
-
-    // Limit the number of messages to 10
-    if (groupMessages[groupId].length > 10) {
-        groupMessages[groupId].splice(0, groupMessages[groupId].length - 10);
-    }
-    // Store the updated messages in local storage
-    localStorage.setItem('groupMessages', JSON.stringify(groupMessages));
-}
 
 const queryParams = new URLSearchParams(window.location.search);
 const groupID = queryParams.get('groupID');
@@ -130,8 +104,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
     if(token){
 
         if(groupID){
-            addMessage(groupMessages[groupID]);
-            let latestMessageID = localStorage.getItem(`latestID_${groupID}`) || undefined;
+            const socket = io();
+
+            socket.on('chat message', (message) => {
+                if(message.groupID === groupID){
+                    addRealTimeMessages(message);
+                };
+            });
 
             //Even listener to display all the group user
             showUser.addEventListener('click', async ()=> {
@@ -233,11 +212,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
             async function getMessages(){
                 try{
-                    const response = await axios.get(`/user/getMessages?groupID=${groupID}&messageID=${latestMessageID}`, {headers: {"Authorization": token}});
+                    const response = await axios.get(`/user/getMessages?groupID=${groupID}`, {headers: {"Authorization": token}});
                     admin(response.data.isAdmin);
-                    updatedLatestMessageID(groupID, response.data.data);
-                    updateGroupMessages(groupID, response.data.data, latestMessageID);
-                            
+                    addMessage(response.data.data);
     
                 }catch(error){
                     if(error.response && error.response.status === 404){
@@ -260,13 +237,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
                   "groupID": groupID
                 };
                 try {
-                  const response = await axios.post('/user/message', jsonData, {
-                    headers: { "Authorization": token }
-                  });         
-                  
-                  await getMessages();
-              
-                  form.reset();
+                    await axios.post('/user/message', jsonData, { headers: { "Authorization": token }} );    
+                    form.reset();
+
                 } catch (error) {
                   console.error('Error while sending message', error);
                 }

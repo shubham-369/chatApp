@@ -15,17 +15,21 @@ const user_1 = require("../models/user");
 const sequelize_1 = require("sequelize");
 const group_1 = require("../models/group");
 const admin_1 = require("../models/admin");
-const addMessage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { groupID, message } = req.body;
-    try {
-        yield req.user.createMessage({ message: message, groupId: groupID });
-        res.status(201).json({ message: 'message saved to database' });
-    }
-    catch (error) {
-        console.log('Error while storing message: ', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
+const addMessage = (io) => {
+    return (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { groupID, message } = req.body;
+        try {
+            yield req.user.createMessage({ message: message, groupId: groupID });
+            // Emit the message to connected clients using `io`
+            io.emit('chat message', { message: message, name: req.user.name, groupID: groupID });
+            res.status(201).json({ message: 'Message saved to the database' });
+        }
+        catch (error) {
+            console.log('Error while storing message: ', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    });
+};
 exports.addMessage = addMessage;
 const getMessages = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { groupID, latestMessageID } = req.query;
