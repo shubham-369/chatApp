@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.1467.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "crypt": "^0.0.2",
@@ -20,10 +21,12 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.6.1",
     "nodemon": "^3.0.1",
+    "path": "^0.12.7",
     "sequelize": "^6.33.0",
     "socket.io": "^4.7.2"
   },
   "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
     "@types/bcrypt": "^5.0.0",
     "@types/cors": "^2.8.14",
     "@types/dotenv": "^8.2.0",

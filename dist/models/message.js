@@ -20,5 +20,9 @@ const Message = database_1.default.define('messages', {
             len: [1, 1000],
         },
     },
+    file: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true
+    }
 });
 exports.Message = Message;

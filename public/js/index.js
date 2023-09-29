@@ -1,13 +1,9 @@
-"use strict";
 
-import jwt from 'jsonwebtoken';
 const logout = document.getElementById('logout');
 const createGroup = document.getElementById('createGroup');
 const form = document.getElementsByClassName('groupForm')[0];
 const groups = document.getElementById('groups');
 const token = localStorage.getItem('token');
-const group = document.getElementsByClassName('group');
-let userID = 0;
 
 createGroup.addEventListener('click', (e)=> {
     e.preventDefault();
@@ -26,14 +22,6 @@ function addGroups(groupArray){
     });
 };
 
-function addRealTimeGroups(group){
-    const li = document.createElement('li');
-    li.setAttribute('data-id', `${group.id}`);
-    li.classList.add('group');
-    li.innerHTML= `${group.name}`;
-    groups.appendChild(li);
-}
-
 
 document.addEventListener('DOMContentLoaded', async ()=> {
 
@@ -43,15 +31,6 @@ document.addEventListener('DOMContentLoaded', async ()=> {
         }
     };
 
-    var decoded = jwt.decode(token);
-    console.log(decoded);
-
-    const socket = io();
-    socket.on('Groups', (Group) => {
-        if(Group.userID === userID){
-            addRealTimeGroups(Group.group);
-        }
-    });
     //get all the user groups
     async function getGroups(){
         try {
@@ -76,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async ()=> {
         const groupName = form.firstElementChild.value;
         try {
             await axios.post(`/user/addGroup`, {group: groupName}, {headers: {"Authorization": token}});
-            
+            await getGroups();
             form.reset();
         } catch (error) {
             console.log('Error while creating group!', error);

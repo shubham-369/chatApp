@@ -29,11 +29,13 @@ function addRealTimeMessages(message){
     chats.appendChild(li);
 };
 
-function admin(isAdmin) {
+function admin(isAdmin, group) {
+
+    icon.previousElementSibling.textContent= group.name;
     if(!isAdmin){
         return;
     }
-
+    
     // Function to toggle the menu visibility
     function toggleMenu() {
         const ul = menu.firstElementChild;
@@ -111,6 +113,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
                     addRealTimeMessages(message);
                 };
             });
+
 
             //Even listener to display all the group user
             showUser.addEventListener('click', async ()=> {
@@ -210,20 +213,27 @@ document.addEventListener('DOMContentLoaded', ()=> {
             });
             
 
-            async function getMessages(){
-                try{
-                    const response = await axios.get(`/user/getMessages?groupID=${groupID}`, {headers: {"Authorization": token}});
-                    admin(response.data.isAdmin);
-                    addMessage(response.data.data);
-    
-                }catch(error){
-                    if(error.response && error.response.status === 404){
-                        chats.innerHTML=`<h3>${error.response.data.message}</h3>`;
-                    }else{
-                        console.log('Error while getting messages!', error);
+            async function getMessages() {
+                try {
+                    const response = await axios.get(`/user/getMessages?groupID=${groupID}`, { headers: { "Authorization": token } });
+            
+                    const { isAdmin, groupDetails, messages } = response.data;
+                 
+                    admin(isAdmin, groupDetails);            
+                    addMessage(messages);
+            
+                } catch (error) {
+                    if (error.response && error.response.status === 404) {
+                        chats.innerHTML = `<h3>${error.response.data.message}</h3>`;
+                        if (error.response.data.groupDetails) {
+                            admin(error.response.data.isAdmin, error.response.data.groupDetails);
+                        }
+                    } else {
+                        console.error('Error while getting messages!', error);
                     }
                 }
-            };
+            }
+            
     
             getMessages();
     
@@ -231,9 +241,10 @@ document.addEventListener('DOMContentLoaded', ()=> {
                 e.preventDefault();
               
                 const messageText = form.firstElementChild.value;
-
+                const file = form.firstElementChild.nextElementSibling.value;
                 const jsonData = {
                   "message": messageText,
+                  "file": file,
                   "groupID": groupID
                 };
                 try {
