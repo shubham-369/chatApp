@@ -23,6 +23,9 @@ function addMessage(data){
     });
 };
 function addRealTimeMessages(message){
+    if(chats.querySelector('h3')){
+        chats.innerHTML='';
+    }
     const li = document.createElement('li');
     li.classList.add('chat');
     li.innerHTML= `${message.name} : ${message.message}`;
@@ -107,7 +110,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
         if(groupID){
             const socket = io();
-
+            //Socket to recieve real time messages
             socket.on('chat message', (message) => {
                 if(message.groupID === groupID){
                     addRealTimeMessages(message);
@@ -243,13 +246,15 @@ document.addEventListener('DOMContentLoaded', ()=> {
                 const messageText = form.firstElementChild.value;
                 const file = form.firstElementChild.nextElementSibling.value;
                 const jsonData = {
-                  "message": messageText,
-                  "file": file,
-                  "groupID": groupID
-                };
+                    "message": messageText,
+                    "groupID": groupID
+                  };
+                  if (file) {
+                    jsonData.file = file;
+                  }
                 try {
-                    await axios.post('/user/message', jsonData, { headers: { "Authorization": token }} );    
                     form.reset();
+                    await axios.post('/user/message', jsonData, { headers: { "Authorization": token }} );    
 
                 } catch (error) {
                   console.error('Error while sending message', error);
