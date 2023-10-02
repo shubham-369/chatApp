@@ -16,14 +16,23 @@ exports.showGroupUsers = exports.getByEmail = exports.getMessages = exports.addM
 const path_1 = __importDefault(require("path"));
 const user_1 = require("../models/user");
 const group_1 = require("../models/group");
-const admin_1 = require("../models/admin");
 const s3Services_1 = __importDefault(require("../services/s3Services"));
+const member_1 = require("../models/member");
 const addMessage = (io) => {
     return (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { groupID, message, file } = req.body;
         const fileExtension = file ? path_1.default.extname(file) : '';
         const filename = `${Date.now()}_${req.user.id}${fileExtension}`;
         try {
+            const user = yield member_1.Member.findOne({
+                where: {
+                    groupId: groupID,
+                    UserId: req.user.id,
+                }
+            });
+            if (!user) {
+                return res.status(404).json({ message: 'You are not part of this group anymore!' });
+            }
             // Emit the message to connected clients using `io`
             io.emit('chat message', { message: message, name: req.user.name, groupID: groupID });
             if (!file) {
@@ -46,20 +55,13 @@ exports.addMessage = addMessage;
 const getMessages = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { groupID } = req.query;
     try {
-        const admin = yield admin_1.Admin.findOne({
+        const member = yield member_1.Member.findOne({
             where: {
                 UserId: req.user.id,
-            },
-            include: [
-                {
-                    model: group_1.Group,
-                    where: {
-                        id: groupID,
-                    },
-                },
-            ],
+                groupId: groupID,
+            }
         });
-        const isadmin = admin !== null;
+        const isadmin = member === null || member === void 0 ? void 0 : member.isAdmin;
         const group = yield group_1.Group.findByPk(groupID);
         if (!group) {
             return res.status(404).json({ message: 'Group does not exits anymore!' });
@@ -104,27 +106,22 @@ exports.getByEmail = getByEmail;
 const showGroupUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { groupID } = req.query;
     try {
-        const group = yield group_1.Group.findByPk(groupID);
-        if (!group) {
-            return res.status(404).json({ message: 'Your group no longer exist!' });
-        }
-        const users = yield group.getUsers({
+        const members = yield group_1.Group.findByPk(groupID, {
             include: [
                 {
-                    model: admin_1.Admin,
-                    required: false,
+                    model: user_1.User,
+                    attributes: ['id', 'name'],
+                    through: {
+                        attributes: ['isAdmin'],
+                    },
                 },
             ],
         });
-        if (users.length <= 0) {
+        if (!members) {
             return res.status(404).json({ message: 'No user is added in the group' });
         }
-        const usersData = yield users.map((user) => ({
-            id: user.id,
-            name: user.name,
-            isAdmin: user.admins.length > 0,
-        }));
-        res.status(200).json({ users: usersData });
+        ;
+        res.status(200).json({ users: members });
     }
     catch (error) {
         console.log('Error while fetching group users: ', error);

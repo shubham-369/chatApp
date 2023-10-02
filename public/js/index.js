@@ -1,15 +1,13 @@
 
 const logout = document.getElementById('logout');
 const createGroup = document.getElementById('createGroup');
+const iframe = document.getElementById('iframe');
 const form = document.getElementsByClassName('groupForm')[0];
+const icon = document.getElementsByClassName('icon-container')[0];
 const groups = document.getElementById('groups');
 const token = localStorage.getItem('token');
 
-createGroup.addEventListener('click', (e)=> {
-    e.preventDefault();
 
-    form.classList.toggle('none');
-});
 
 function addGroups(groupArray){
     groups.innerHTML= '';
@@ -31,6 +29,15 @@ document.addEventListener('DOMContentLoaded', async ()=> {
         }
     };
 
+    icon.addEventListener('click', ()=> {
+        icon.nextElementSibling.classList.toggle('none');
+    });
+    createGroup.addEventListener('click', (e)=> {
+        e.preventDefault();
+    
+        form.classList.toggle('none');
+    });
+    
     //get all the user groups
     async function getGroups(){
         try {
@@ -67,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async ()=> {
     groups.addEventListener('click', (e)=> {
         if(e.target.classList.contains('group')){
             const id = e.target.getAttribute('data-id');
-            window.location.href= `/chats.html?groupID=${id}`;
+            iframe.src=  `/chats.html?groupID=${id}`;
         }
     });
 });

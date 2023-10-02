@@ -42,9 +42,15 @@ function admin(isAdmin, group) {
     // Function to toggle the menu visibility
     function toggleMenu() {
         const ul = menu.firstElementChild;
-        ul.style.height = ul.style.height === '4rem' ? '0' : '4rem';
-        ul.style.opacity = ul.style.opacity === '1' ? '0' : '1';
+        if (ul.style.height === '4rem') {
+            ul.style.height = '0';
+            ul.style.opacity = '0';
+        } else {
+            ul.style.height = '4rem';
+            ul.style.opacity = '1';
+        }
     }
+    
 
     // Add click event listener to the icon to toggle the menu
     icon.classList.remove('none');
@@ -123,7 +129,9 @@ document.addEventListener('DOMContentLoaded', ()=> {
                 if(searchResult.innerHTML===''){
                     try {
                         const response = await axios.get(`/user/showGroupUsers?groupID=${groupID}`, {headers: {"Authorization": token}});
-                        const users = response.data.users;
+                        let users = response.data.users;
+                        console.log(users.Users);
+                        users = users.Users;
                         await users.forEach((user) => {
                             const userListItem = document.createElement('li');
                             userListItem.classList.add('user-list');
@@ -132,7 +140,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
                                 ${user.name}
                                 <div>
                                     <button class="btn btn-danger remove">Remove</button>
-                                    ${user.isAdmin ? 
+                                    ${user.members.isAdmin ? 
                                         '<button class="btn btn-primary remove-admin ml-auto">Drop Admin</button>' :
                                         '<button class="btn btn-primary make-admin ml-auto">Make Admin</button>'}
                                 </div>
@@ -215,7 +223,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
                 }
             });
             
-
+            //function to get group messges
             async function getMessages() {
                 try {
                     const response = await axios.get(`/user/getMessages?groupID=${groupID}`, { headers: { "Authorization": token } });
@@ -240,6 +248,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
     
             getMessages();
     
+            //form to send messages and files
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
               
