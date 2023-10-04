@@ -35,11 +35,14 @@ function uploadToS3(file, filename) {
         accessKeyId: i_am_user_key,
         secretAccessKey: i_am_user_secret_key
     });
+    const fileBuffer = Buffer.from(file.buffer);
     let params = {
         Bucket: bucket_name,
         Key: filename,
-        Body: file,
-        ACL: 'public-read'
+        Body: fileBuffer,
+        ACL: 'public-read',
+        ContentType: file.mimetype,
+        ContentDisposition: 'inline',
     };
     return new Promise((resolve, reject) => {
         s3bucket.upload(params, (error, data) => {

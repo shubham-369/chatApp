@@ -31,8 +31,11 @@ const router = (0, express_1.Router)();
 const messageController = __importStar(require("../controllers/message"));
 // import CronControllers from "../controllers/cronJob";
 const authenticate_1 = __importDefault(require("../middleware/authenticate"));
+const multer_1 = __importDefault(require("multer"));
+const storage = multer_1.default.memoryStorage();
+const upload = (0, multer_1.default)({ storage: storage });
 function MessageRoutes(io) {
-    router.post('/message', authenticate_1.default, messageController.addMessage(io));
+    router.post('/message', authenticate_1.default, upload.single('file'), messageController.addMessage(io));
     router.get('/getMessages', authenticate_1.default, messageController.getMessages);
     router.get('/searchUser', authenticate_1.default, messageController.getByEmail);
     router.get('/showGroupUsers', authenticate_1.default, messageController.showGroupUsers);

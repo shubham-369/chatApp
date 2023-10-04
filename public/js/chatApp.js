@@ -20,11 +20,25 @@ function addMessage(data){
         li.classList.add('chat');
         li.innerHTML= `${messages.User.name} : ${messages.message}`;
         chats.appendChild(li);
+        if(messages.file){
+            const iframe = document.createElement('iframe');
+            iframe.src = messages.file; 
+            iframe.width = '100%'; 
+            iframe.height = '300'; 
+            chats.appendChild(iframe);
+        }
     });
 };
 function addRealTimeMessages(message){
     if(chats.querySelector('h3')){
         chats.innerHTML='';
+    }
+    if(message.File){
+        const iframe = document.createElement('iframe');
+        iframe.src = message.file; 
+        iframe.width = '100%'; 
+        iframe.height = '600'; 
+        chats.appendChild(iframe);
     }
     const li = document.createElement('li');
     li.classList.add('chat');
@@ -252,18 +266,28 @@ document.addEventListener('DOMContentLoaded', ()=> {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
               
-                const messageText = form.firstElementChild.value;
-                const file = form.firstElementChild.nextElementSibling.value;
+                const messageText = form.querySelector('input[name="message"]').value;
+                const fileInput = form.querySelector('input[name="file"]');
                 const jsonData = {
                     "message": messageText,
                     "groupID": groupID
                   };
-                  if (file) {
-                    jsonData.file = file;
+                  if (fileInput.files) {
+                    jsonData.file = fileInput.files[0];
                   }
+                  
                 try {
                     form.reset();
-                    await axios.post('/user/message', jsonData, { headers: { "Authorization": token }} );    
+                    
+                    const headers = {};
+                    if(fileInput.files){
+                        headers['Content-type'] = 'multipart/form-data';
+                    }else{
+                        headers['Content-type'] = 'application/json';
+                    }
+                    headers['Authorization'] = token;
+
+                    await axios.post('/user/message', jsonData, { headers } );    
 
                 } catch (error) {
                   console.error('Error while sending message', error);
