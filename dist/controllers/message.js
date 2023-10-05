@@ -21,28 +21,38 @@ const addMessage = (io) => {
     return (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const { groupID, message } = req.body;
         const file = req.file;
-        const filename = `${Date.now()}_${req.user.id}_${file.originalname}`;
         try {
+            //finding if user is member of a group
             const user = yield member_1.Member.findOne({
                 where: {
                     groupId: groupID,
                     UserId: req.user.id,
-                }
+                },
             });
             if (!user) {
                 return res.status(404).json({ message: 'You are not part of this group anymore!' });
             }
-            if (!file) {
-                //if no file attached to the message then we won't store the file in db
-                io.emit('chat message', { message: message, name: req.user.name, groupID: groupID });
-                yield req.user.createMessage({ message: message, groupId: groupID });
-                return res.status(201).json({ message: 'Message saved to the database' });
+            const chatMessage = {
+                name: req.user.name,
+                groupId: groupID
+            };
+            const saveMessage = {
+                groupId: groupID
+            };
+            //if request contains file then add file
+            if (file) {
+                const filename = `${Date.now()}_${req.user.id}_${file.originalname}`;
+                const url = yield (0, s3Services_1.default)(file, filename);
+                chatMessage.File = url;
+                saveMessage.file = url;
             }
-            //if there is a file then first it will be uploaded to the bucket then the url from the bucket will be stored in db
-            let url = yield (0, s3Services_1.default)(file, filename);
-            // Emit the message to connected clients using `io`
-            io.emit('chat message', { message: message, name: req.user.name, groupID: groupID, File: url });
-            yield req.user.createMessage({ message: message, groupId: groupID, file: url });
+            //if request contains message then add message
+            if (message) {
+                chatMessage.message = message;
+                saveMessage.message = message;
+            }
+            io.emit('chat message', chatMessage);
+            yield req.user.createMessage(saveMessage);
             res.status(201).json({ message: 'Message saved to the database' });
         }
         catch (error) {

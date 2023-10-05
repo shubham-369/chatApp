@@ -1,4 +1,4 @@
-const logout = document.getElementById('logout');
+
 const token = localStorage.getItem('token');
 const form = document.getElementsByTagName('form')[0];
 const chats = document.getElementById('chats');
@@ -16,18 +16,22 @@ function addMessage(data){
     }
     chats.innerHTML= '';
     data.forEach(messages => {
-        const li = document.createElement('li');
-        li.classList.add('chat');
-        li.innerHTML= `${messages.User.name} : ${messages.message}`;
-        chats.appendChild(li);
-        if(messages.file){
+        if (messages.file) {
             const iframe = document.createElement('iframe');
             iframe.src = messages.file; 
             iframe.width = '100%'; 
             iframe.height = '300'; 
             chats.appendChild(iframe);
         }
+    
+        if (messages.message) {
+            const li = document.createElement('li');
+            li.classList.add('chat');
+            li.innerHTML = `${messages.User.name} : ${messages.message}`;
+            chats.appendChild(li);
+        }
     });
+    
 };
 function addRealTimeMessages(message){
     if(chats.querySelector('h3')){
@@ -36,14 +40,17 @@ function addRealTimeMessages(message){
     if(message.File){
         const iframe = document.createElement('iframe');
         iframe.src = message.file; 
-        iframe.width = '100%'; 
+        iframe.width = '90%'; 
         iframe.height = '600'; 
         chats.appendChild(iframe);
     }
-    const li = document.createElement('li');
-    li.classList.add('chat');
-    li.innerHTML= `${message.name} : ${message.message}`;
-    chats.appendChild(li);
+    
+    if(message.message){
+        const li = document.createElement('li');
+        li.classList.add('chat');
+        li.innerHTML= `${message.name} : ${message.message}`;
+        chats.appendChild(li);
+    }
 };
 
 function admin(isAdmin, group) {
@@ -307,11 +314,3 @@ document.addEventListener('DOMContentLoaded', ()=> {
 });
 
 
-logout.addEventListener('click', (e)=> {
-    e.preventDefault();
-
-    if(window.confirm('Do you want to logout?')){
-        localStorage.removeItem('token');
-        window.location.href= '/login.html';
-    }
-});
