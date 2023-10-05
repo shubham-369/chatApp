@@ -40,7 +40,7 @@ const message_2 = __importDefault(require("./routes/message"));
 app.use('/user', user_1.default);
 app.use('/user', group_1.default);
 app.use('/user', (0, message_2.default)(io));
-node_cron_1.default.schedule('39 17 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
+node_cron_1.default.schedule('0 0 * * *', () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield cronJob_1.default.runJob();
     }

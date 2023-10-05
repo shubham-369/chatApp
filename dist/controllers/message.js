@@ -51,6 +51,7 @@ const addMessage = (io) => {
                 chatMessage.message = message;
                 saveMessage.message = message;
             }
+            console.log(chatMessage);
             io.emit('chat message', chatMessage);
             yield req.user.createMessage(saveMessage);
             res.status(201).json({ message: 'Message saved to the database' });

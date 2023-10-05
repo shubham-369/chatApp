@@ -37,6 +37,13 @@ function addRealTimeMessages(message){
     if(chats.querySelector('h3')){
         chats.innerHTML='';
     }
+    if(message.message){
+        const li = document.createElement('li');
+        li.classList.add('chat');
+        li.innerHTML= `${message.name} : ${message.message}`;
+        chats.appendChild(li);
+    }
+
     if(message.File){
         const iframe = document.createElement('iframe');
         iframe.src = message.file; 
@@ -45,12 +52,7 @@ function addRealTimeMessages(message){
         chats.appendChild(iframe);
     }
     
-    if(message.message){
-        const li = document.createElement('li');
-        li.classList.add('chat');
-        li.innerHTML= `${message.name} : ${message.message}`;
-        chats.appendChild(li);
-    }
+
 };
 
 function admin(isAdmin, group) {
@@ -139,7 +141,7 @@ document.addEventListener('DOMContentLoaded', ()=> {
             const socket = io();
             //Socket to recieve real time messages
             socket.on('chat message', (message) => {
-                if(message.groupID === groupID){
+                if(message.groupId === groupID){
                     addRealTimeMessages(message);
                 };
             });
